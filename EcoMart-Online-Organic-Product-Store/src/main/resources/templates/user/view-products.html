@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - EcoMart</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .products-header h1 {
+            color: var(--primary-green);
+            margin: 0;
+        }
+
+        .search-filter-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .product-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            height: 250px;
+            background: var(--bg-light);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .product-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .product-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 700;
+            min-height: 3rem;
+        }
+
+        .product-description {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+        }
+
+        .product-unit {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-add-cart {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-add-cart:hover {
+            background: linear-gradient(135deg, var(--primary-green-dark) 0%, var(--primary-green) 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-add-cart:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .in-cart-badge {
+            background: var(--success);
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .products-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-filter-bar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/user-navbar :: userNavbar}"></div>
+</header>
+
+<main class="container">
+    <div class="products-header">
+        <h1><i class="fas fa-store"></i> Available Products</h1>
+        <div class="search-filter-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search products..." 
+                       onkeyup="filterProducts()">
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div th:if="${success != null}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+    </div>
+
+    <div th:if="${products != null && !products.isEmpty()}">
+        <div class="product-grid" id="productGrid">
+            <div class="product-card" th:each="p : ${products}" th:attr="data-name=${p.name}, data-description=${p.description}">
+                <div class="product-image-wrapper">
+                    <img th:if="${p.imagePath != null and !p.imagePath.isEmpty()}" 
+                         th:src="${p.imagePath}" 
+                         alt="Product Image"
+                         style="width: 100%; height: 100%; object-fit: cover;"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'250\'%3E%3Crect fill=\'%23f0f0f0\' width=\'300\' height=\'250\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3ENo Image%3C/text%3E%3C/svg%3E'">
+                    <div th:unless="${p.imagePath != null and !p.imagePath.isEmpty()}" 
+                         style="width: 100%; height: 100%; background: var(--bg-light); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                        <i class="fas fa-image" style="font-size: 3rem;"></i>
+                    </div>
+                    <div class="product-badge" th:if="${p.stock != null && p.stock > 0}">
+                        <i class="fas fa-check"></i> In Stock
+                    </div>
+                </div>
+
+                <div class="product-content">
+                    <h3 th:text="${p.name}"></h3>
+                    <p class="product-description" th:text="${p.description}"></p>
+                    <div class="product-price">
+                        ₹<span th:text="${p.price}"></span>
+                        <span class="product-unit" th:if="${p.unit != null}">/ <span th:text="${p.unit}"></span></span>
+                    </div>
+
+                    <!-- If already in cart -->
+                    <div th:if="${#lists.contains(cartProductIds, p.id)}" class="in-cart-badge">
+                        <i class="fas fa-check-circle"></i> Already in Cart
+                    </div>
+
+                    <!-- If not in cart -->
+                    <form th:if="${!#lists.contains(cartProductIds, p.id)}" 
+                          th:action="@{/user/cart/add/{id}(id=${p.id})}" 
+                          method="post"
+                          class="product-actions">
+                        <button type="submit" class="btn-add-cart">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${products == null || products.isEmpty()}" class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h2 style="color: var(--text-dark); margin-bottom: 1rem;">No Products Available</h2>
+        <p style="color: var(--text-muted);">
+            Check back later for new products!
+        </p>
+    </div>
+</main>
+
+<script>
+    function filterProducts() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const productGrid = document.getElementById('productGrid');
+        const products = productGrid.getElementsByClassName('product-card');
+
+        for (let i = 0; i < products.length; i++) {
+            const product = products[i];
+            const name = product.getAttribute('data-name').toLowerCase();
+            const description = product.getAttribute('data-description')?.toLowerCase() || '';
+            
+            if (name.includes(filter) || description.includes(filter)) {
+                product.style.display = '';
+            } else {
+                product.style.display = 'none';
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

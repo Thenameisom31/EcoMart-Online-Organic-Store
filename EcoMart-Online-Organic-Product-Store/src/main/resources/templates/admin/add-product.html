@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Product</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/admin-navbar :: adminNavbar}"></div>
+</header>
+
+<main class="container">
+    <h1>Add New Product</h1>
+
+   <form class="form" th:action="@{/admin/products/add}" method="post" enctype="multipart/form-data" th:object="${product}">
+    
+    <label>Product Name
+        <input type="text" th:field="*{name}" placeholder="Product Name" required>
+    </label>
+
+    <label>Price
+        <input type="number" th:field="*{price}" placeholder="Price" step="0.01" required>
+    </label>
+
+    <label>Unit
+        <select th:field="*{unit}" required>
+            <option value="">Select Unit</option>
+            <option value="kg">Per Kg</option>
+            <option value="litre">Per Litre</option>
+            <option value="piece">Per Piece</option>
+            <option value="pack">Per Pack</option>
+        </select>
+    </label>
+
+    <label>Description
+        <textarea th:field="*{description}" placeholder="Enter product description"></textarea>
+    </label>
+
+    <label>Category
+        <select th:field="*{category}" required>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat.id}"
+                    th:text="${cat.name}">
+            </option>
+        </select>
+    </label>
+
+    <label>Image
+        <input type="file" name="imageFile" accept="image/*" required>
+    </label>
+
+    <label>Status
+        <select th:field="*{status}" required>
+            <option value="">Select Status</option>
+            <option value="Available">Available</option>
+            <option value="Out of Stock">Out of Stock</option>
+        </select>
+    </label>
+
+    <button type="submit" class="btn">Add Product</button>
+    <a th:href="@{/admin/products}" class="btn outline">Cancel</a>
+</form>
+
+</main>
+
+<footer class="footer">&copy; 2025 EcoMart Admin</footer>
+</body>
+</html>

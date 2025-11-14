@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EcoMart Admin | Orders</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/admin-navbar :: adminNavbar}"></div>
+</header>
+
+<main class="container">
+    <div class="page-header">
+        <h1>Orders</h1>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}"></td>
+            <td th:text="${order.user.firstName + ' ' + order.user.lastName}">User</td>
+            <td>₹<span th:text="${order.totalAmount}">0</span></td>
+            <td th:text="${order.status}">Pending</td>
+            <td th:text="${#temporals.format(order.date, 'dd-MM-yyyy HH:mm')}"></td>
+            <td>
+                <ul>
+                    <li th:each="item : ${order.orderItems}">
+                        <span th:text="${item.product.name}">Product</span> -
+                        <span th:text="${item.quantity}">0</span> ×
+                        ₹<span th:text="${item.totalPrice}">0</span>
+                    </li>
+                </ul>
+            </td>
+            <td>
+                <!-- ✅ Fixed form action -->
+                <form th:action="@{/admin/orders/update/{id}(id=${order.id})}" method="post">
+                    <select name="status">
+                        <option value="Pending" th:selected="${order.status == 'Pending'}">Pending</option>
+                        <option value="Shipped" th:selected="${order.status == 'Shipped'}">Shipped</option>
+                        <option value="Delivered" th:selected="${order.status == 'Delivered'}">Delivered</option>
+                        <option value="Cancelled" th:selected="${order.status == 'Cancelled'}">Cancelled</option>
+                    </select>
+                    <button type="submit" class="btn">Update</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<footer class="footer">&copy; 2025 EcoMart Admin</footer>
+</body>
+</html>

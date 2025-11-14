@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart - EcoMart</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .cart-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .cart-empty i {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .cart-table-wrapper {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cart-table thead {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .cart-table th {
+            padding: 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+        }
+
+        .cart-table td {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .cart-table tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        .cart-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .product-info img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+        }
+
+        .product-details h4 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+
+        .product-details p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            color: var(--primary-green);
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            padding: 0.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .price-cell {
+            font-weight: 600;
+            color: var(--primary-green);
+            font-size: 1.1rem;
+        }
+
+        .remove-btn {
+            background: transparent;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .remove-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .cart-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            border-top: 2px solid var(--primary-green);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .cart-actions .btn {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        @media (max-width: 768px) {
+            .cart-table {
+                font-size: 0.875rem;
+            }
+
+            .cart-table th,
+            .cart-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .product-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .product-info img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .cart-actions {
+                flex-direction: column;
+            }
+
+            .cart-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/user-navbar :: userNavbar}"></div>
+</header>
+
+<main class="container">
+    <div class="cart-header">
+        <h1 style="color: var(--primary-green); margin: 0;">
+            <i class="fas fa-shopping-cart"></i> My Shopping Cart
+        </h1>
+        <a th:href="@{/user/products}" style="color: var(--primary-green); text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Continue Shopping
+        </a>
+    </div>
+
+    <!-- Success Message -->
+    <div th:if="${param.success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> Item updated successfully!
+    </div>
+
+    <div th:if="${cartItems != null && !cartItems.isEmpty()}">
+        <div class="cart-table-wrapper">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${cartItems}">
+                        <td>
+                            <div class="product-info">
+                                <img th:if="${item.product.imagePath != null and !item.product.imagePath.isEmpty()}" 
+                                     th:src="${item.product.imagePath}" 
+                                     alt="Product Image"
+                                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"
+                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\'%3E%3Crect fill=\'%23f0f0f0\' width=\'80\' height=\'80\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3ENo Image%3C/text%3E%3C/svg%3E'">
+                                <div th:unless="${item.product.imagePath != null and !item.product.imagePath.isEmpty()}" 
+                                     style="width: 80px; height: 80px; background: var(--bg-light); display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--text-muted);">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <div class="product-details">
+                                    <h4 th:text="${item.product.name}"></h4>
+                                    <p th:text="${item.product.description}"></p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="price-cell">
+                            ₹<span th:text="${item.product.price}"></span>
+                        </td>
+                        <td>
+                            <div class="quantity-controls">
+                                <button type="button" class="quantity-btn" 
+                                        onclick="updateQuantity([[${item.product.id}]], -1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" 
+                                       th:value="${item.quantity}" 
+                                       min="1" 
+                                       th:id="'qty-' + ${item.product.id}"
+                                       class="quantity-input"
+                                       onchange="updateQuantity([[${item.product.id}]], 0, this.value)">
+                                <button type="button" class="quantity-btn" 
+                                        onclick="updateQuantity([[${item.product.id}]], 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="price-cell" th:id="'total-' + ${item.product.id}">
+                            ₹<span th:text="${item.totalPrice}"></span>
+                        </td>
+                        <td>
+                            <form th:action="@{/user/cart/remove/{id}(id=${item.product.id})}" 
+                                  method="post" 
+                                  onsubmit="return confirm('Are you sure you want to remove this item?')">
+                                <button type="submit" class="remove-btn">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem;">
+            <div class="cart-actions">
+                <form th:action="@{/user/cart/clear}" method="post" 
+                      onsubmit="return confirm('Are you sure you want to clear your cart?')">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Clear Cart
+                    </button>
+                </form>
+                <a th:href="@{/user/products}" class="btn btn-secondary" style="text-decoration: none; text-align: center;">
+                    <i class="fas fa-shopping-bag"></i> Continue Shopping
+                </a>
+            </div>
+
+            <div class="cart-summary">
+                <h2 style="margin-top: 0; color: var(--primary-green);">
+                    <i class="fas fa-receipt"></i> Order Summary
+                </h2>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>₹<span id="cart-subtotal" th:text="${cartTotal}"></span></span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span style="color: var(--success);">FREE</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total</span>
+                    <span id="cart-total">₹<span th:text="${cartTotal}"></span></span>
+                </div>
+                <a th:href="@{/user/checkout}" class="btn" style="margin-top: 1.5rem; text-decoration: none; text-align: center; display: block;">
+                    <i class="fas fa-lock"></i> Proceed to Checkout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty Cart -->
+    <div th:if="${cartItems == null || cartItems.isEmpty()}" class="cart-empty">
+        <i class="fas fa-shopping-cart"></i>
+        <h2 style="color: var(--text-dark); margin-bottom: 1rem;">Your cart is empty</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">
+            Looks like you haven't added anything to your cart yet.
+        </p>
+        <a th:href="@{/user/products}" class="btn" style="text-decoration: none; display: inline-block;">
+            <i class="fas fa-shopping-bag"></i> Start Shopping
+        </a>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    function updateQuantity(productId, change, newValue) {
+        const qtyInput = document.getElementById('qty-' + productId);
+        let quantity = parseInt(qtyInput.value) || 1;
+        
+        if (newValue !== undefined) {
+            quantity = parseInt(newValue) || 1;
+        } else {
+            quantity += change;
+        }
+        
+        if (quantity < 1) quantity = 1;
+        
+        qtyInput.value = quantity;
+        
+        // Update via AJAX
+        fetch('/user/cart/update/' + productId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'quantity=' + quantity
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error('Network response was not ok');
+        })
+        .then(() => {
+            // Reload page to update totals
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to update quantity. Please try again.');
+        });
+    }
+</script>
+
+</body>
+</html>

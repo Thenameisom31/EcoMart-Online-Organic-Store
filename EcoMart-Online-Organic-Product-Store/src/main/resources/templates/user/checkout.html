@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - EcoMart</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .checkout-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-summary {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-meta {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .item-total {
+            font-weight: 700;
+            color: var(--primary-green);
+            font-size: 1.1rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            border-top: 2px solid var(--primary-green);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .address-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .address-form-grid .form-group:first-child,
+        .address-form-grid .form-group:nth-child(2) {
+            grid-column: 1 / -1;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-green);
+            color: var(--primary-green);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        @media (max-width: 968px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/user-navbar :: userNavbar}"></div>
+</header>
+
+<main class="container">
+    <h1 style="text-align: center; color: var(--primary-green); margin-bottom: 2rem;">
+        <i class="fas fa-shopping-cart"></i> Checkout
+    </h1>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${param.success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> Order placed successfully!
+    </div>
+    <div th:if="${param.error}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${param.error}">An error occurred</span>
+    </div>
+
+    <div class="checkout-container">
+        <!-- Shipping Address Form -->
+        <div class="checkout-section">
+            <h2 class="section-title">
+                <i class="fas fa-map-marker-alt"></i> Shipping Address
+            </h2>
+            
+            <form th:action="@{/user/checkout/place-order}" method="post" id="checkoutForm">
+                <div class="form-group">
+                    <label for="shippingAddress">Street Address *</label>
+                    <input type="text" id="shippingAddress" name="shippingAddress" 
+                           placeholder="Enter your street address" required>
+                </div>
+
+                <div class="address-form-grid">
+                    <div class="form-group">
+                        <label for="shippingCity">City *</label>
+                        <input type="text" id="shippingCity" name="shippingCity" 
+                               placeholder="Enter city" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="shippingState">State *</label>
+                        <input type="text" id="shippingState" name="shippingState" 
+                               placeholder="Enter state" required>
+                    </div>
+                </div>
+
+                <div class="address-form-grid">
+                    <div class="form-group">
+                        <label for="shippingZipCode">ZIP Code *</label>
+                        <input type="text" id="shippingZipCode" name="shippingZipCode" 
+                               placeholder="Enter ZIP code" required pattern="[0-9]{5,6}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="shippingPhone">Phone Number *</label>
+                        <input type="tel" id="shippingPhone" name="shippingPhone" 
+                               placeholder="Enter phone number" required pattern="[0-9]{10}">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a th:href="@{/user/cart}" class="btn btn-outline" style="text-decoration: none; text-align: center;">
+                        <i class="fas fa-arrow-left"></i> Back to Cart
+                    </a>
+                    <button type="submit" class="btn" id="placeOrderBtn">
+                        <i class="fas fa-check"></i> Place Order
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="checkout-section order-summary">
+            <h2 class="section-title">
+                <i class="fas fa-receipt"></i> Order Summary
+            </h2>
+
+            <div th:if="${cartItems != null && !cartItems.isEmpty()}">
+                <div th:each="item : ${cartItems}" class="cart-item">
+                    <div class="item-details">
+                        <div class="item-name" th:text="${item.product.name}"></div>
+                        <div class="item-meta">
+                            <span>Qty: <span th:text="${item.quantity}"></span></span> × 
+                            <span>₹<span th:text="${item.product.price}"></span></span>
+                        </div>
+                    </div>
+                    <div class="item-total">
+                        ₹<span th:text="${item.totalPrice}"></span>
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>₹<span th:text="${cartTotal}"></span></span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span style="color: var(--success);">FREE</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total</span>
+                    <span style="color: var(--primary-green);">₹<span th:text="${cartTotal}"></span></span>
+                </div>
+            </div>
+
+            <div th:if="${cartItems == null || cartItems.isEmpty()}" class="text-center" style="padding: 2rem;">
+                <i class="fas fa-shopping-cart" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                <p style="color: var(--text-muted);">Your cart is empty</p>
+                <a th:href="@{/user/products}" class="btn" style="margin-top: 1rem; text-decoration: none;">
+                    Browse Products
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        const btn = document.getElementById('placeOrderBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading"></span> Placing Order...';
+    });
+
+    // Form validation
+    const form = document.getElementById('checkoutForm');
+    const inputs = form.querySelectorAll('input[required]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.style.borderColor = 'var(--danger)';
+            } else {
+                this.style.borderColor = 'var(--primary-green)';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

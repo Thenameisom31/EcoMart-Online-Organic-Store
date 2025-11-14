@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EcoMart Admin | Users</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/admin-navbar :: adminNavbar}"></div>
+</header>
+
+<main class="container">
+    <div class="page-header">
+        <h1>Users</h1>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${users}">
+            <td th:text="${u.id}">1</td>
+            <td th:text="${u.firstName + ' ' + u.lastName}">Name</td>
+            <td th:text="${u.email}">email@example.com</td>
+            <td th:text="${u.mbo_No}">1234567890</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<footer class="footer">&copy; 2025 EcoMart Admin</footer>
+</body>
+</html>

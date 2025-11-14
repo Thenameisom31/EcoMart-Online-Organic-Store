@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EcoMart Admin | Dashboard</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/admin-navbar :: adminNavbar}"></div>
+</header>
+
+<main class="container">
+    <h1>Dashboard</h1>
+    <section class="admin-cards">
+        <div class="card">
+            <h3>Total Products</h3>
+            <p class="metric" th:text="${totalProducts}">0</p>
+        </div>
+        <div class="card">
+            <h3>Total Orders</h3>
+            <p class="metric" th:text="${totalOrders}">0</p>
+        </div>
+        <div class="card">
+            <h3>Total Users</h3>
+            <p class="metric" th:text="${totalUsers}">0</p>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">&copy; 2025 EcoMart Admin</footer>
+</body>
+</html>

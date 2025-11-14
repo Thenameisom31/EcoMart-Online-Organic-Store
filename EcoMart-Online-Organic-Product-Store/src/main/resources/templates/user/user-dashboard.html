@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/style.css}">
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<header>
+  <div th:replace="~{fragments/user-navbar :: userNavbar}"></div>
+</header>
+
+<main class="container mt-5">
+  <!-- Welcome Section -->
+  <div class="text-center mb-5">
+    <h2>
+      Welcome, <span th:text="${user.firstName}">User</span> 👋
+    </h2>
+    <p class="text-muted">
+      Your email: <span th:text="${user.email}">email@example.com</span>
+    </p>
+  </div>
+
+  <!-- Quick Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="card shadow-sm p-4 text-center">
+      <i class="fa-solid fa-box-open fa-2x text-primary mb-2"></i>
+      <h5>Browse Products</h5>
+      <p class="text-muted">Explore our latest collections</p>
+      <a th:href="@{/user/products}" class="btn">View Products</a>
+    </div>
+
+    <div class="card shadow-sm p-4 text-center">
+      <i class="fa-solid fa-bag-shopping fa-2x text-success mb-2"></i>
+      <h5>My Orders</h5>
+      <p class="text-muted">Check your order history</p>
+      <a th:href="@{/user/orders}" class="btn">View Orders</a>
+    </div>
+
+    <div class="card shadow-sm p-4 text-center">
+      <i class="fa-solid fa-cart-shopping fa-2x text-warning mb-2"></i>
+      <h5>My Cart</h5>
+      <p class="text-muted">Manage your shopping cart</p>
+      <a th:href="@{/user/cart}" class="btn">Go to Cart</a>
+    </div>
+  </div>
+
+  <!-- Category Selector -->
+<div class="card shadow-sm p-4">
+  <h5 class="mb-3"><i class="fa-solid fa-list"></i> Browse by Category</h5>
+  
+  <form id="categoryForm" method="get">
+    <select id="category" class="form-select" name="categoryId"
+            onchange="goToCategory(this.value)">
+      <option selected disabled>Select Category</option>
+      <th:block th:each="cat : ${categories}">
+        <option th:value="${cat.id}" th:text="${cat.name}"></option>
+      </th:block>
+    </select>
+  </form>
+</div>
+
+<script>
+  function goToCategory(categoryId) {
+    if (categoryId) {
+      window.location.href = "/user/category/" + categoryId + "/products";
+    }
+  }
+</script>
+
+</main>
+
+</body>
+</html>

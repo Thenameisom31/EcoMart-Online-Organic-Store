@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EcoMart Admin | Products</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/admin-navbar :: adminNavbar}"></div>
+</header>
+
+<main class="container">
+    <div class="page-header">
+        <h1>Products</h1>
+        <a class="btn" th:href="@{/admin/products/add}">Add Product</a>
+    </div>
+    
+    <table class="table" border="1">
+       <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Unit</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Status</th>
+        <th>Image</th>
+        <th>Actions</th>
+    </tr>
+</thead>
+<tbody>
+    <tr th:each="p : ${products}">
+        <td th:text="${p.id}"></td>
+        <td th:text="${p.name}"></td>
+        <td th:text="${p.price}"></td>
+        <td th:text="${p.unit}"></td>
+        <td th:text="${p.description}"></td>
+        <td th:text="${p.category?.name}"></td>
+        <td th:text="${p.status}"></td>
+        <td>
+            <img th:if="${p.imagePath != null and !p.imagePath.isEmpty()}" 
+                 th:src="${p.imagePath}" 
+                 th:alt="${p.name}" 
+                 style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Crect fill=\'%23f0f0f0\' width=\'100\' height=\'100\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3ENo Image%3C/text%3E%3C/svg%3E'"/>
+            <span th:unless="${p.imagePath != null and !p.imagePath.isEmpty()}" 
+                  style="color: var(--muted);">No Image</span>
+        </td>
+        <td>
+            <a th:href="@{'/admin/products/edit/' + ${p.id}}">Edit</a>
+            <a th:href="@{'/admin/products/delete/' + ${p.id}}"
+               onclick="return confirm('Are you sure you want to delete this product?')">
+               Delete
+            </a>
+        </td>
+    </tr>
+</tbody>
+
+    </table>
+</body>
+</html>

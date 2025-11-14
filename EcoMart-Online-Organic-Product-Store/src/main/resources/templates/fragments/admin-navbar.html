@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Reusable Admin Navbar Fragment -->
+<nav class="admin-navbar" th:fragment="adminNavbar">
+    <div class="brand">EcoMart Admin</div>
+    <ul>
+        <li><a th:href="@{/admin/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/admin/products}">Products</a></li>
+        <li><a th:href="@{/admin/categories}">Categories</a></li>
+        <li><a th:href="@{/admin/orders}">Orders</a></li>
+        <li><a th:href="@{/admin/users}">Users</a></li>
+        <!-- ✅ Logout -->
+		<li>
+		    <a th:href="@{/admin/logout}" class="logout-btn">Logout</a>
+		</li>
+    </ul>
+</nav>
+</body>
+</html>

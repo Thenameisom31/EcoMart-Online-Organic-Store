@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Product</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/admin-navbar :: adminNavbar}"></div>
+</header>
+
+<main class="container">
+    <h1>Edit Product</h1>
+
+    <!-- Error Message Display -->
+    <div th:if="${error != null}" class="alert error">
+        <span th:text="${error}"></span>
+    </div>
+    
+    <!-- Success Message -->
+    <div th:if="${success != null}" class="alert success">
+        <span th:text="${success}"></span>
+    </div>
+
+    <form class="form" th:action="@{'/admin/products/update/' + ${product.id}}" 
+          method="post" enctype="multipart/form-data" th:object="${product}">
+        <input type="hidden" th:field="*{id}">
+
+        <!-- Product Name -->
+        <div class="form-group">
+            <label>Product Name
+                <input type="text" th:field="*{name}" placeholder="Product Name" required>
+                <small class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+            </label>
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+            <label>Price
+                <input type="number" th:field="*{price}" placeholder="Price" step="0.01" min="0" required>
+                <small class="error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></small>
+            </label>
+        </div>
+
+        <!-- Unit -->
+        <div class="form-group">
+            <label>Unit
+                <select th:field="*{unit}" required>
+                    <option value="">Select Unit</option>
+                    <option value="/kg" th:selected="${product.unit == '/kg'}">Per Kg</option>
+                    <option value="/litre" th:selected="${product.unit == '/litre'}">Per Litre</option>
+                    <option value="/piece" th:selected="${product.unit == '/piece'}">Per Piece</option>
+                    <option value="/pack" th:selected="${product.unit == '/pack'}">Per Pack</option>
+                </select>
+                <small class="error" th:if="${#fields.hasErrors('unit')}" th:errors="*{unit}"></small>
+            </label>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label>Description
+                <textarea th:field="*{description}" placeholder="Enter product description" rows="3"></textarea>
+                <small class="error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></small>
+            </label>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+            <label>Category
+                <select th:field="*{category}" required>
+                    <option value="">Select Category</option>
+                    <option th:each="cat : ${categories}" 
+                            th:value="${cat.id}" 
+                            th:text="${cat.name}"
+                            th:selected="${product.category != null and product.category.id == cat.id}">
+                    </option>
+                </select>
+                <small class="error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></small>
+            </label>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+            <label>Status
+                <select th:field="*{status}" required>
+                    <option value="">Select Status</option>
+                    <option value="Available" th:selected="${product.status == 'Available'}">Available</option>
+                    <option value="Out of Stock" th:selected="${product.status == 'Out of Stock'}">Out of Stock</option>
+                </select>
+                <small class="error" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></small>
+            </label>
+        </div>
+
+        <!-- Current Image -->
+        <div class="form-group">
+            <label>Current Image</label>
+            <div class="image-preview">
+                <img th:if="${product.imagePath != null and !product.imagePath.isEmpty()}" 
+                     th:src="${product.imagePath}" 
+                     alt="Current Product Image" 
+                     class="thumb-lg"
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23f0f0f0\' width=\'200\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3ENo Image%3C/text%3E%3C/svg%3E'">
+                <div th:unless="${product.imagePath != null and !product.imagePath.isEmpty()}" class="no-image">
+                    No image available
+                </div>
+            </div>
+        </div>
+
+        <!-- Replace Image -->
+        <div class="form-group">
+            <label>Replace Image
+                <input type="file" name="imageFile" accept="image/*">
+                <small class="hint">Leave blank to keep current image</small>
+            </label>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn">Update Product</button>
+            <a th:href="@{/admin/products}" class="btn outline">Cancel</a>
+        </div>
+    </form>
+</main>
+
+<footer class="footer">&copy; 2025 EcoMart Admin</footer>
+</body>
+</html>

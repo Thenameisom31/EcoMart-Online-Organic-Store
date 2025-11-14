@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EcoMart Admin | Categories</title>
+    <link rel="stylesheet" th:href="@{/admin.css}">
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/admin-navbar :: adminNavbar}"></div>
+</header>
+
+<main class="container">
+    <div class="page-header">
+        <h1>Categories</h1>
+    </div>
+
+    <form class="form-inline" th:action="@{/admin/categories/add}" method="post">
+        <input type="text" name="name" placeholder="Category Name" required>
+        <select name="status">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+        </select>
+        <button type="submit" class="btn">Add Category</button>
+    </form>
+
+    <table class="table">
+        <thead>
+        <tr><th>ID</th><th>Name</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="cat : ${categories}">
+            <td th:text="${cat.id}">1</td>
+            <td th:text="${cat.name}">Name</td>
+            <td>
+                <span th:if="${cat.status}" class="status-active">Active</span>
+                <span th:unless="${cat.status}" class="status-inactive">Inactive</span>
+            </td>
+            <td>
+                <a th:href="@{'/admin/categories/toggle-status/' + ${cat.id}}" class="btn" th:text="${cat.status} ? 'Deactivate' : 'Activate'">Toggle</a>
+                <a th:href="@{'/admin/categories/delete/' + ${cat.id}}" class="btn danger"
+                   onclick="return confirm('Delete this category?')">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<footer class="footer">&copy; 2025 EcoMart Admin</footer>
+</body>
+</html>

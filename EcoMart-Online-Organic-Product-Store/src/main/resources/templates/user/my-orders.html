@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - EcoMart</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .orders-header h1 {
+            color: var(--primary-green);
+            margin: 0;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .order-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .order-id {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .order-date {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .order-status {
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: var(--warning);
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .status-shipped {
+            background: #007bff;
+            color: white;
+        }
+
+        .status-delivered {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-cancelled {
+            background: var(--danger);
+            color: white;
+        }
+
+        .order-body {
+            padding: 1.5rem;
+        }
+
+        .order-items {
+            margin-bottom: 1.5rem;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border-color);
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-dark);
+        }
+
+        .item-meta {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: var(--primary-green);
+            font-size: 1.1rem;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .shipping-info {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+        }
+
+        .shipping-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-green);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .shipping-info p {
+            margin: 0.25rem 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .empty-orders i {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .order-actions {
+                width: 100%;
+            }
+
+            .order-actions button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/user-navbar :: userNavbar}"></div>
+</header>
+
+<main class="container">
+    <div class="orders-header">
+        <h1><i class="fas fa-shopping-bag"></i> My Orders</h1>
+    </div>
+
+    <!-- Success Message -->
+    <div th:if="${param.success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> Order placed successfully! We'll process it soon.
+    </div>
+
+    <!-- Cancelled Message -->
+    <div th:if="${param.cancelled}" class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Order has been cancelled.
+    </div>
+
+    <div th:if="${orders != null && !orders.isEmpty()}">
+        <div th:each="order : ${orders}" class="order-card">
+            <div class="order-header">
+                <div class="order-info">
+                    <div class="order-id">
+                        <i class="fas fa-receipt"></i> Order #<span th:text="${order.id}"></span>
+                    </div>
+                    <div class="order-date">
+                        <i class="fas fa-calendar"></i> 
+                        <span th:text="${#temporals.format(order.date, 'dd MMM yyyy, hh:mm a')}"></span>
+                    </div>
+                </div>
+                <div class="order-status" 
+                     th:classappend="${order.status == 'Pending'} ? 'status-pending' : 
+                                    (${order.status == 'Processing'} ? 'status-processing' : 
+                                    (${order.status == 'Shipped'} ? 'status-shipped' : 
+                                    (${order.status == 'Delivered'} ? 'status-delivered' : 'status-cancelled'))">
+                    <i class="fas fa-circle" style="font-size: 0.6rem; margin-right: 0.5rem;"></i>
+                    <span th:text="${order.status}"></span>
+                </div>
+            </div>
+
+            <div class="order-body">
+                <!-- Shipping Address -->
+                <div th:if="${order.shippingAddress != null && !order.shippingAddress.isEmpty()}" class="shipping-info">
+                    <h4><i class="fas fa-map-marker-alt"></i> Shipping Address</h4>
+                    <p th:text="${order.shippingAddress}"></p>
+                    <p>
+                        <span th:text="${order.shippingCity}"></span>, 
+                        <span th:text="${order.shippingState}"></span> - 
+                        <span th:text="${order.shippingZipCode}"></span>
+                    </p>
+                    <p th:if="${order.shippingPhone != null}">
+                        <i class="fas fa-phone"></i> <span th:text="${order.shippingPhone}"></span>
+                    </p>
+                </div>
+
+                <!-- Order Items -->
+                <div class="order-items">
+                    <h4 style="margin-bottom: 1rem; color: var(--text-dark);">
+                        <i class="fas fa-box"></i> Order Items
+                    </h4>
+                    <div th:each="item : ${order.orderItems}" class="order-item">
+                        <img th:if="${item.product.imagePath != null and !item.product.imagePath.isEmpty()}" 
+                             th:src="${item.product.imagePath}" 
+                             alt="Product" 
+                             class="item-image"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\'%3E%3Crect fill=\'%23f0f0f0\' width=\'80\' height=\'80\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3ENo Image%3C/text%3E%3C/svg%3E'">
+                        <div th:unless="${item.product.imagePath != null and !item.product.imagePath.isEmpty()}" 
+                             class="item-image" 
+                             style="background: var(--bg-light); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" th:text="${item.product.name}"></div>
+                            <div class="item-meta">
+                                Quantity: <span th:text="${item.quantity}"></span> × 
+                                ₹<span th:text="${item.product.price}"></span>
+                            </div>
+                        </div>
+                        <div class="item-price">
+                            ₹<span th:text="${item.totalPrice}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div>
+                        <span style="color: var(--text-muted);">Total Amount:</span>
+                        <span class="order-total">₹<span th:text="${order.totalAmount}"></span></span>
+                    </div>
+                    <div class="order-actions">
+                        <form th:if="${order.status == 'Pending'}" 
+                              th:action="@{/user/orders/cancel/{id}(id=${order.id})}" 
+                              method="post"
+                              onsubmit="return confirm('Are you sure you want to cancel this order?')">
+                            <button type="submit" class="btn btn-danger" style="padding: 0.75rem 1.5rem;">
+                                <i class="fas fa-times"></i> Cancel Order
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${orders == null || orders.isEmpty()}" class="empty-orders">
+        <i class="fas fa-shopping-bag"></i>
+        <h2 style="color: var(--text-dark); margin-bottom: 1rem;">No Orders Yet</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">
+            You haven't placed any orders yet. Start shopping to see your orders here!
+        </p>
+        <a th:href="@{/user/products}" class="btn" style="text-decoration: none; display: inline-block;">
+            <i class="fas fa-shopping-bag"></i> Browse Products
+        </a>
+    </div>
+</main>
+
+</body>
+</html>

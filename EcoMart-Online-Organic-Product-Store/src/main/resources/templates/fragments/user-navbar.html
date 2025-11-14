@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav class="user-navbar" th:fragment="userNavbar">
+    <div class="brand">EcoMart</div>
+    <ul>
+        <li><a th:href="@{/user/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/user/products}">Products</a></li>
+        <li>
+            <a th:href="@{/user/cart}" class="cart-link">
+                🛒 Cart (<span th:text="${session.cartCount != null ? session.cartCount : 0}"></span>)
+            </a>
+        </li>
+        <li><a th:href="@{/user/orders}">My Orders</a></li>
+        <li><a th:href="@{/user/profile}">Profile</a></li>
+        <li><a th:href="@{/user/contact}">Contact Us</a></li>
+        <li><a th:href="@{/logout}" class="btn danger">Logout</a></li>
+    </ul>
+</nav>
+</body>
+</html>
